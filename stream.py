@@ -6,7 +6,7 @@ import time
 
 
 def main():
-    port = find_arduino()
+    port = find_arduino() if len(sys.argv) < 2 else sys.argv[1]
     fd = sys.stdin.fileno()
     orig = termios.tcgetattr(fd)
 
@@ -19,18 +19,24 @@ def main():
         print("Arduino not found")
         return
 
-    with serial.Serial(port, 9600, timeout=0) as arduino:
-        time.sleep(2)
-        print(f"Connected to {arduino.name}")
-        print("Ready to stream key presses")
-        while True:
-            lines = arduino.readall()
-            if len(lines) > 0:
-                print(lines.decode().strip())
-            arduino.write(getch(fd, orig, new).encode())
-            lines = arduino.readall()
-            if len(lines) > 0:
-                print(lines.decode().strip())
+    try:
+        arduino = serial.Serial(port, 9600, timeout=0)
+    except serial.SerialException:
+        print(f"Arduino not found at '{port}'")
+    else:
+        with arduino:
+            time.sleep(2)
+            print(f"Connected to {arduino.name}")
+            print("Ready to stream key presses")
+            while True:
+                lines = arduino.readall()
+                if len(lines) > 0:
+                    print(lines.decode().strip())
+                arduino.write(getch(fd, orig, new).encode())
+                lines = arduino.readall()
+                if len(lines) > 0:
+                    print(lines.decode().strip())
+
 
 
 def find_arduino():
