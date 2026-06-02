@@ -1,5 +1,5 @@
 [project]
-name = "character-display-typing"
+name = "character-lcd-editor"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
